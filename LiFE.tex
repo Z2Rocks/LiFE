@@ -1,0 +1,77 @@
+\documentclass{article}
+
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz-cd}
+
+\begin{document}
+
+\title{Linear Fiber Extension - LiFE}
+\author{Jan Sebastian Lerch}
+\date{April 1st 2026}
+\maketitle
+
+\begin{abstract}
+The following algorithm is an efficient way of extracting structural information from arbitrary data. It is the simplest, most straightforward algebraic approach to extend an arbitrary bit-string. As it uses concatenation as a basic structural bridge, vector spaces become but a temporary road to local resolution. More general versions over arbitrary fields using different families of composable functions are possible, but computationally intensive.
+\end{abstract}
+
+The general structure of the algorithm is best described using a commutative diagram:
+\begin{center}
+\begin{tikzcd}
+X_1 \arrow[rr, "\phi_{1,2}"] \arrow[d, dashed, "\phi^{-1}_{1,2,\dots,k}" swap]
+&& X_2 \arrow[dl, "\dots" description]\\
+X_{k | \phi_{1,2} \circ \dots \circ \phi_{\dots, k}}
+& X_k \arrow[ul, "\phi_{1,2,\dots,k}" description]
+\end{tikzcd}
+\end{center}
+
+The basic flow is as follows, for given vectors $X \in V$ (some subdivision of the original data-string):
+
+\begin{enumerate}
+\item gather up the largest possible loop $X_1$ to $X_k$,
+\item compose the function families $\phi_{1,\dots,k}$
+\item observe the fiber of the composition at the origin to obtain new 'copies' of the last vector $X_k$ w.r.t $X_1, X_2,\dots$
+\end{enumerate}
+
+As this is a rather imprecise process - the pattern in the data becomes clear only after a statistically relevant ammount of fibre points has been gathered (unless the starting points are carefully chosen) - the exact loops are not important.
+
+Over $\mathbb{Z}_2$ the situation becomes quite straightforward. Setting the function family to upper triangular matrices, and restricting the initial connections to matrices in Jordan normal form, we obtain the most powerful version of the algorithm - Linear Fiber Extension.
+\newpage
+\begin{algorithm}
+\caption{LiFE}
+\begin{algorithmic}[1]
+    \STATE \textbf{Procedure} \textsc{LIFE}($data[ ]$, $length$, $sample$)
+    \STATE $rand\gets$\textsc{RandSeed}
+    \WHILE{$i < length$}
+        \STATE $i, loops[j]\gets $\textsc{Loop}($data[ ]$, $i$)
+        \STATE $j \gets j + 1$
+    \ENDWHILE
+    \WHILE{$I < sample$}
+        \STATE $i \gets 0$
+        \WHILE{$i < j$}
+        \STATE $M \gets \mathbb{I}$
+            \WHILE{$k < loop[i].size$}
+                 \STATE $M\gets$\textsc{AdvMtrx}($M$, $loop[i]$, $rand$)
+                 \STATE $k\gets k+1$
+            \ENDWHILE
+            \STATE $\textsc{Fibrate}$($M$, $loop[0]$)
+            \STATE $i\gets i+1$
+        \ENDWHILE
+        \STATE $I\gets I+1$
+    \ENDWHILE
+    \STATE \textbf{End Procedure}
+\end{algorithmic}
+\end{algorithm}
+
+\textsc{Loop}($data[ ]$, $i$) - finds the largest loop for the next largest section of data. Optimum exists as for small sections loop-lenght is combinatorially limited.
+
+\textsc{AdvMtrx}($M$, $loop[i]$, $rand$) - composes $M$ along the path given by the $loop$ array, while lightly mixing $rand$ and depositing its digits into the free slots of the next function (picking a specific function in the family).
+
+\textsc{Fibrate}($M$, $loop[0]$) - calculates the inverse of $M$ on $x_0$.  As the sampling is done during composition, only a single point in the fiber will be calculated (hence the sampling loop).
+
+A more advanced control scheme would associate the same loop to multiple vectors and combine many fibration steps along path composition, perhaps even going in a loop $sample + 1$ number of times, fibrating at each step after a full loop has been completed.
+
+\end{document}
